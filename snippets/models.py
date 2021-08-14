@@ -32,3 +32,11 @@ class Snippet(models.Model):
                                   full=True, **options)
         self.highlighted = highlight(self.code, lexer, formatter)
         super(Snippet, self).save(*args, **kwargs)
+
+
+class Script(models.Model):
+    name = models.CharField(max_length=255)
+    owner = models.ForeignKey('auth.User',
+                              related_name='scripts',
+                              on_delete=models.CASCADE)
+    snippets = models.CommaSeparatedIntegerField()
