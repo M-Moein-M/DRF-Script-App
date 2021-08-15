@@ -39,4 +39,4 @@ class Script(models.Model):
     owner = models.ForeignKey('auth.User',
                               related_name='scripts',
                               on_delete=models.CASCADE)
-    snippets = models.CharField(max_length=1023)
+    snippets = models.CharField(max_length=1023, default='')
