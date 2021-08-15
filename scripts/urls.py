@@ -1,3 +1,6 @@
+from scripts.views import ScriptList
+from django.urls import path
 
-
-urlpatterns = []
+urlpatterns = [
+    path('scripts/', ScriptList.as_view())
+]
