@@ -2,11 +2,14 @@ from rest_framework.views import APIView
 from scripts.serializers import ScriptSerializer
 from rest_framework.response import Response
 from rest_framework import status
+from snippets.models import Script
 
 
 class ScriptList(APIView):
     def get(self, request):
-        pass
+        script_list = Script.objects.all().order_by('id')
+        serializer = ScriptSerializer(script_list, many=True)
+        return Response(data=serializer.data)
 
     def post(self, request):
         serializer = ScriptSerializer(data=request.data)
