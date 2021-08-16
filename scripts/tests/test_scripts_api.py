@@ -3,9 +3,17 @@ from rest_framework import status
 from django.test import TestCase
 from django.contrib.auth.models import User
 from snippets.models import Script
+from scripts.serializers import ScriptSerializer
 
 
 SCRIPTS_URL = '/scripts/'
+
+
+def create_sample_script(owner, name='TestScript', snippets=''):
+    instance = Script.objects.create(owner=owner,
+                                     name=name,
+                                     snippets=snippets)
+    return instance
 
 
 class ScriptApiTest(TestCase):
@@ -33,3 +41,15 @@ class ScriptApiTest(TestCase):
         script = Script.objects.get(id=res.data['id'])
         for k in payload:
             self.assertEqual(payload[k], getattr(script, k))
+
+    def test_listing_script(self):
+        """Test listing script objects"""
+        create_sample_script(self.user, name='TestScript1')
+        create_sample_script(self.user, name='TestScript2')
+
+        res = self.client.get(SCRIPTS_URL)
+        expected = ScriptSerializer(data=Script.objects.all().order_by('id'),
+                                    many=True)
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data, expected)
