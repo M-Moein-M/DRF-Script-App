@@ -48,8 +48,8 @@ class ScriptApiTest(TestCase):
         create_sample_script(self.user, name='TestScript2')
 
         res = self.client.get(SCRIPTS_URL)
-        expected = ScriptSerializer(data=Script.objects.all().order_by('id'),
-                                    many=True)
+        expected = ScriptSerializer(Script.objects.all().order_by('id'),
+                                    many=True).data
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data, expected)
