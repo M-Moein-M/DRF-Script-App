@@ -1,21 +1,23 @@
-from rest_framework.views import APIView
+from rest_framework import generics
+from rest_framework import mixins
 from scripts.serializers import ScriptSerializer
-from rest_framework.response import Response
-from rest_framework import status
 from snippets.models import Script
 
 
-class ScriptList(APIView):
-    def get(self, request):
-        script_list = Script.objects.all().order_by('id')
-        serializer = ScriptSerializer(script_list, many=True)
-        return Response(data=serializer.data)
+class ScriptList(mixins.ListModelMixin,
+                 mixins.CreateModelMixin,
+                 generics.GenericAPIView):
+    """Listing and creating script objects"""
 
-    def post(self, request):
-        serializer = ScriptSerializer(data=request.data)
-        if serializer.is_valid():
-            instance = serializer.save(owner=request.user)
-            return Response(data=ScriptSerializer(instance).data,
-                            status=status.HTTP_201_CREATED)
-        else:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+    queryset = Script.objects.all().order_by('id')
+    serializer_class = ScriptSerializer
+    pagination_class = None
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
+
+    def perform_create(self, serializer, *args, **kwargs):
+        serializer.save(owner=self.request.user)
