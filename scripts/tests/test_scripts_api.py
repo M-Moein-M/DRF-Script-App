@@ -53,3 +53,13 @@ class ScriptApiTest(TestCase):
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data, expected)
+
+    def test_getting_script_detail(self):
+        script = create_sample_script(self.user)
+
+        detail_url = f'{SCRIPTS_URL}{script.id}'
+        res = self.client.get(path=detail_url)
+
+        expected = ScriptSerializer(script).data
+        self.assertEqual(res.data, expected)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
