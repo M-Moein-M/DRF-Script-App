@@ -63,3 +63,16 @@ class ScriptApiTest(TestCase):
         expected = ScriptSerializer(script).data
         self.assertEqual(res.data, expected)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+    def test_patching_script_detail(self):
+        payload = {'name': 'updated_name'}
+
+        script = create_sample_script(owner=self.user)
+
+        detail_url = f'{SCRIPTS_URL}{script.id}'
+        res = self.client.patch(detail_url, data=payload)
+
+        self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
+        script.refresh_from_db()
+        for key, val in payload.items():
+            self.assertEqual(getattr(script, key, None), payload[key])
