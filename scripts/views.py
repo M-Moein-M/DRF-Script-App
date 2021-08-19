@@ -29,3 +29,12 @@ class ScriptDetail(APIView):
         serializer = ScriptSerializer(script)
         return Response(status=status.HTTP_200_OK,
                         data=serializer.data)
+
+    def patch(self, request, pk):
+        script = self.get_object(pk)
+        serializer = ScriptSerializer(instance=script,
+                                      data=request.data,
+                                      partial=True)
+        if serializer.is_valid():
+            serializer.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)
