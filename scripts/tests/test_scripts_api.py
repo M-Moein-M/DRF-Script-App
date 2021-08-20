@@ -80,3 +80,12 @@ class ScriptApiTest(TestCase):
         script.refresh_from_db()
         for key, val in payload.items():
             self.assertEqual(getattr(script, key, None), payload[key])
+
+    def test_deleting_script_detail(self):
+        script = create_sample_script(owner=self.user)
+
+        detail_url = get_script_detail_url(script.id)
+        res = self.client.delete(detail_url)
+
+        self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertFalse(Script.objects.filter(id=script.id).exists())
