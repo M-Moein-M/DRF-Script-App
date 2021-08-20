@@ -38,3 +38,8 @@ class ScriptDetail(APIView):
         if serializer.is_valid():
             serializer.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def delete(self, request, pk):
+        script = self.get_object(pk)
+        script.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
