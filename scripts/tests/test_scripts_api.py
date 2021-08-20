@@ -9,6 +9,10 @@ from scripts.serializers import ScriptSerializer
 SCRIPTS_URL = '/scripts/'
 
 
+def get_script_detail_url(pk):
+    return f'{SCRIPTS_URL}{pk}'
+
+
 def create_sample_script(owner, name='TestScript', snippets=''):
     instance = Script.objects.create(owner=owner,
                                      name=name,
@@ -57,7 +61,7 @@ class ScriptApiTest(TestCase):
     def test_getting_script_detail(self):
         script = create_sample_script(self.user)
 
-        detail_url = f'{SCRIPTS_URL}{script.id}'
+        detail_url = get_script_detail_url(script.id)
         res = self.client.get(path=detail_url)
 
         expected = ScriptSerializer(script).data
@@ -69,7 +73,7 @@ class ScriptApiTest(TestCase):
 
         script = create_sample_script(owner=self.user)
 
-        detail_url = f'{SCRIPTS_URL}{script.id}'
+        detail_url = get_script_detail_url(script.id)
         res = self.client.patch(detail_url, data=payload)
 
         self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
