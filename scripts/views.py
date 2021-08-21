@@ -1,10 +1,7 @@
 from rest_framework import generics
+from rest_framework import mixins
 from scripts.serializers import ScriptSerializer
 from snippets.models import Script
-from rest_framework.views import APIView
-from rest_framework import status
-from rest_framework.response import Response
-from django.shortcuts import get_object_or_404
 
 
 class ScriptList(generics.ListCreateAPIView):
@@ -18,28 +15,13 @@ class ScriptList(generics.ListCreateAPIView):
         serializer.save(owner=self.request.user)
 
 
-class ScriptDetail(APIView):
-    """Handling Script details view"""
+class ScriptDetail(mixins.UpdateModelMixin,
+                   generics.RetrieveDestroyAPIView,
+                   generics.GenericAPIView):
+    """Handling Script details view(method PUT not allowed)"""
 
-    def get_object(self, pk):
-        return get_object_or_404(Script, id=pk)
+    queryset = Script.objects.all()
+    serializer_class = ScriptSerializer
 
-    def get(self, request, pk):
-        script = self.get_object(pk)
-        serializer = ScriptSerializer(script)
-        return Response(status=status.HTTP_200_OK,
-                        data=serializer.data)
-
-    def patch(self, request, pk):
-        script = self.get_object(pk)
-        serializer = ScriptSerializer(instance=script,
-                                      data=request.data,
-                                      partial=True)
-        if serializer.is_valid():
-            serializer.save()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-    def delete(self, request, pk):
-        script = self.get_object(pk)
-        script.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+    def patch(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
