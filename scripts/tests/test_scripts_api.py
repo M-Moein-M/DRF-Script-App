@@ -76,7 +76,7 @@ class ScriptApiTest(TestCase):
         detail_url = get_script_detail_url(script.id)
         res = self.client.patch(detail_url, data=payload)
 
-        self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
         script.refresh_from_db()
         for key, val in payload.items():
             self.assertEqual(getattr(script, key, None), payload[key])
