@@ -2,7 +2,7 @@ from rest_framework.test import APIClient
 from rest_framework import status
 from django.test import TestCase
 from django.contrib.auth.models import User
-from snippets.models import Script
+from snippets.models import Script, Snippet
 from scripts.serializers import ScriptSerializer
 
 
@@ -11,6 +11,13 @@ SCRIPTS_URL = '/scripts/'
 
 def get_script_detail_url(pk):
     return f'{SCRIPTS_URL}{pk}'
+
+
+def create_sample_snippet(owner, title, code):
+    instance = Snippet.objects.create(owner=owner,
+                                      title=title,
+                                      code=code)
+    return instance
 
 
 def create_sample_script(owner, name='TestScript', snippets=''):
@@ -89,3 +96,34 @@ class ScriptApiTest(TestCase):
 
         self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
         self.assertFalse(Script.objects.filter(id=script.id).exists())
+
+
+class ScriptApiSnippetsFieldTest(TestCase):
+    """Testing snippets field for script objects"""
+
+    def setUp(self):
+        self.client = APIClient()
+        self.user = User.objects.create_user(username='testuser',
+                                             email='testuser@test.com',
+                                             password='testpasswd')
+        self.client.force_authenticate(user=self.user)
+
+    def test_creating_script_valid_snippets(self):
+        snippet1 = create_sample_snippet(owner=self.user,
+                                         title='Title1',
+                                         code='print(datetime.datetime.now())')
+        snippet2 = create_sample_snippet(owner=self.user,
+                                         title='Title2',
+                                         code="print('end of program')")
+
+        payload = {
+            'owner': self.user,
+            'name': 'TestScript',
+            'snippets': f'{snippet1.id},{snippet2.id}',
+        }
+        res = self.client.post(path=SCRIPTS_URL, data=payload)
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        self.assertTrue(Script.objects.filter(id=res.data['id']).exists())
+        script = Script.objects.get(id=res.data['id'])
+        for k in payload:
+            self.assertEqual(payload[k], getattr(script, k))
