@@ -127,3 +127,21 @@ class ScriptApiSnippetsFieldTest(TestCase):
         script = Script.objects.get(id=res.data['id'])
         for k in payload:
             self.assertEqual(payload[k], getattr(script, k))
+
+    def test_creating_script_invalid_snippets(self):
+        snippet1 = create_sample_snippet(owner=self.user,
+                                         title='Title1',
+                                         code='print(datetime.datetime.now())')
+        snippet2 = create_sample_snippet(owner=self.user,
+                                         title='Title2',
+                                         code="print('end of program')")
+
+        invalid_id = snippet1.id + snippet2.id
+        payload = {
+            'owner': self.user,
+            'name': 'TestScript',
+            'snippets': f'{snippet1.id},{snippet2.id},{invalid_id}',
+        }
+
+        res = self.client.post(path=SCRIPTS_URL, data=payload)
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
