@@ -32,5 +32,6 @@ class ScriptSerializer(serializers.Serializer):
 
     def update(self, instance, validated_data):
         instance.name = validated_data.get('name', instance.name)
+        instance.snippets = validated_data.get('snippets', instance.snippets)
         instance.save()
         return instance
