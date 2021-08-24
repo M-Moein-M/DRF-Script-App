@@ -162,3 +162,15 @@ class ScriptApiSnippetsFieldTest(TestCase):
         script.refresh_from_db()
         for key, val in payload.items():
             self.assertEqual(getattr(script, key, None), payload[key])
+
+    def test_patching_script_invalid_snippets(self):
+        snippet1 = create_sample_snippet(owner=self.user,
+                                         title='Title1',
+                                         code='print(datetime.datetime.now())')
+        script = create_sample_script(owner=self.user,
+                                      snippets=f'{snippet1.id}')
+
+        payload = {'snippets': f'{200},{snippet1.id}'}
+        res = self.client.patch(get_script_detail_url(script.id), payload)
+
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
