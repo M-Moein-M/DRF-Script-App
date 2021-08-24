@@ -5,7 +5,6 @@ from django.contrib.auth.models import User
 from snippets.models import Script, Snippet
 from scripts.serializers import ScriptSerializer
 
-
 SCRIPTS_URL = '/scripts/'
 
 
@@ -145,3 +144,21 @@ class ScriptApiSnippetsFieldTest(TestCase):
 
         res = self.client.post(path=SCRIPTS_URL, data=payload)
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_patching_script_valid_snippets(self):
+        snippet1 = create_sample_snippet(owner=self.user,
+                                         title='Title1',
+                                         code='print(datetime.datetime.now())')
+        snippet2 = create_sample_snippet(owner=self.user,
+                                         title='Title2',
+                                         code="print('end of program')")
+        script = create_sample_script(owner=self.user,
+                                      snippets=f'{snippet1.id}')
+
+        payload = {'snippets': f'{snippet2.id},{snippet1.id}'}
+        res = self.client.patch(get_script_detail_url(script.id), payload)
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        script.refresh_from_db()
+        for key, val in payload.items():
+            self.assertEqual(getattr(script, key, None), payload[key])
