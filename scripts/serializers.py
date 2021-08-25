@@ -5,7 +5,8 @@ from snippets.models import Script, Snippet
 def validate_snippets_field(value):
     """snippets field must be a comma separated string of existing snippet id"""
     try:
-        id_set = {int(s_id.strip()) for s_id in value.split(',')}
+        id_set = {int(s_id.strip())
+                  for s_id in value.split(',') if s_id.strip()}
         existing_ids = set(Snippet.objects.values_list('id', flat=True))
         common_ids = id_set & existing_ids
         if common_ids == id_set:
