@@ -36,3 +36,26 @@ class ScriptSerializer(serializers.Serializer):
         instance.snippets = validated_data.get('snippets', instance.snippets)
         instance.save()
         return instance
+
+
+class ScriptDetailSerializer(ScriptSerializer):
+    """Handle representation of script objects with snippets code included"""
+
+    def expand_snippets(self, snippets):
+        id_list = [int(s_id.strip())
+                   for s_id in snippets.split(',') if s_id.strip()]
+        snippets_objects = Snippet.objects.filter(id__in=id_list)
+        ret = {snippet_id: snippets_objects.get(id=snippet_id).code
+               for snippet_id in id_list}
+        return ret
+
+    def to_representation(self, instance):
+        super_serializer = ScriptSerializer(instance)
+        ret = dict(super_serializer.data)
+        if super_serializer.data['snippets']:
+            ret.update({
+                'snippets_expanded':
+                    self.expand_snippets(super_serializer.data['snippets'])
+            })
+
+        return ret
