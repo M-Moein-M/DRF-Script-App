@@ -110,12 +110,10 @@ class ScriptApiSnippetsFieldTest(TestCase):
         self.client.force_authenticate(user=self.user)
 
     def test_creating_script_valid_snippets(self):
-        snippet1 = create_sample_snippet(owner=self.user,
-                                         title='Title1',
-                                         code='print(datetime.datetime.now())')
-        snippet2 = create_sample_snippet(owner=self.user,
-                                         title='Title2',
-                                         code="print('end of program')")
+        snippet1, snippet2 = create_sample_snippet(
+            owner=self.user,
+            code='print(datetime.datetime.now())',
+            n=2)
 
         payload = {
             'owner': self.user,
@@ -130,12 +128,10 @@ class ScriptApiSnippetsFieldTest(TestCase):
             self.assertEqual(payload[k], getattr(script, k))
 
     def test_creating_script_invalid_snippets(self):
-        snippet1 = create_sample_snippet(owner=self.user,
-                                         title='Title1',
-                                         code='print(datetime.datetime.now())')
-        snippet2 = create_sample_snippet(owner=self.user,
-                                         title='Title2',
-                                         code="print('end of program')")
+        snippet1, snippet2 = create_sample_snippet(
+            owner=self.user,
+            code='print(datetime.datetime.now())',
+            n=2)
 
         invalid_id = snippet1.id + snippet2.id
         payload = {
@@ -148,12 +144,10 @@ class ScriptApiSnippetsFieldTest(TestCase):
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_patching_script_valid_snippets(self):
-        snippet1 = create_sample_snippet(owner=self.user,
-                                         title='Title1',
-                                         code='print(datetime.datetime.now())')
-        snippet2 = create_sample_snippet(owner=self.user,
-                                         title='Title2',
-                                         code="print('end of program')")
+        snippet1, snippet2 = create_sample_snippet(
+            owner=self.user,
+            code='print(datetime.datetime.now())',
+            n=2)
         script = create_sample_script(owner=self.user,
                                       snippets=f'{snippet1.id}')
 
