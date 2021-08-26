@@ -1,6 +1,6 @@
 from rest_framework import generics
 from rest_framework import mixins
-from scripts.serializers import ScriptSerializer
+from scripts.serializers import ScriptSerializer, ScriptDetailSerializer
 from snippets.models import Script
 
 
@@ -22,6 +22,12 @@ class ScriptDetail(mixins.UpdateModelMixin,
 
     queryset = Script.objects.all()
     serializer_class = ScriptSerializer
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return ScriptDetailSerializer
+        else:
+            return ScriptSerializer
 
     def patch(self, request, *args, **kwargs):
         return self.partial_update(request, *args, **kwargs)
