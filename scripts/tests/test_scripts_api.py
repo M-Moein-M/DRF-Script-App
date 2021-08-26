@@ -3,7 +3,7 @@ from rest_framework import status
 from django.test import TestCase
 from django.contrib.auth.models import User
 from snippets.models import Script, Snippet
-from scripts.serializers import ScriptSerializer
+from scripts.serializers import ScriptSerializer, ScriptDetailSerializer
 
 SCRIPTS_URL = '/scripts/'
 
@@ -67,12 +67,17 @@ class ScriptApiTest(TestCase):
         self.assertEqual(res.data, expected)
 
     def test_getting_script_detail(self):
-        script = create_sample_script(self.user)
+        snippet1, snippet2 = create_sample_snippet(
+            owner=self.user,
+            code='print(datetime.datetime.now())',
+            n=2)
+        script = create_sample_script(self.user,
+                                      snippets=f'{snippet1.id},{snippet2.id}')
 
         detail_url = get_script_detail_url(script.id)
         res = self.client.get(path=detail_url)
 
-        expected = ScriptSerializer(script).data
+        expected = ScriptDetailSerializer(script).data
         self.assertEqual(res.data, expected)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
