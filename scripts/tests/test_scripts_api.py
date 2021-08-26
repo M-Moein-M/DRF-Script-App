@@ -12,11 +12,13 @@ def get_script_detail_url(pk):
     return f'{SCRIPTS_URL}{pk}'
 
 
-def create_sample_snippet(owner, title, code):
-    instance = Snippet.objects.create(owner=owner,
-                                      title=title,
-                                      code=code)
-    return instance
+def create_sample_snippet(owner, code, title='SnippetTitle', n=1):
+    ret = list()
+    for i in range(n):
+        ret.append(Snippet.objects.create(owner=owner,
+                                          title=f'{title}-{i}',
+                                          code=f'{code} #{i}'))
+    return ret[0] if n == 1 else ret
 
 
 def create_sample_script(owner, name='TestScript', snippets=''):
