@@ -223,3 +223,14 @@ class TestAuthRestrictedRequest(TestCase):
         res = self.client.delete(get_script_detail_url(script.id))
 
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_deleting_script_not_owner_user(self):
+        script = create_sample_script(self.user)
+
+        user2 = User.objects.create_user(username='testuser2',
+                                         email='testuser2@test.com',
+                                         password='testpasswd2')
+        self.client.force_authenticate(user=user2)
+        res = self.client.delete(get_script_detail_url(script.id))
+
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
