@@ -4,6 +4,7 @@ from scripts.serializers import ScriptSerializer, ScriptDetailSerializer
 from snippets.models import Script
 
 from rest_framework import permissions
+from snippets.permissions import IsOwnerOrReadOnly
 
 
 class ScriptList(generics.ListCreateAPIView):
@@ -26,6 +27,9 @@ class ScriptDetail(mixins.UpdateModelMixin,
 
     queryset = Script.objects.all()
     serializer_class = ScriptSerializer
+
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,
+                          IsOwnerOrReadOnly)
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
