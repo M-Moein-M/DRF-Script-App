@@ -3,6 +3,8 @@ from rest_framework import mixins
 from scripts.serializers import ScriptSerializer, ScriptDetailSerializer
 from snippets.models import Script
 
+from rest_framework import permissions
+
 
 class ScriptList(generics.ListCreateAPIView):
     """Listing and creating script objects"""
@@ -10,6 +12,8 @@ class ScriptList(generics.ListCreateAPIView):
     queryset = Script.objects.all().order_by('id')
     serializer_class = ScriptSerializer
     pagination_class = None
+
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
     def perform_create(self, serializer, *args, **kwargs):
         serializer.save(owner=self.request.user)
