@@ -175,3 +175,21 @@ class ScriptApiSnippetsFieldTest(TestCase):
         res = self.client.patch(get_script_detail_url(script.id), payload)
 
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+class TestAuthRestrictedRequest(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.user = User.objects.create_user(username='testuser',
+                                             email='testuser@test.com',
+                                             password='testpasswd')
+
+    def test_creating_script_not_authenticated_user(self):
+        payload = {
+            'owner': self.user,
+            'name': 'TestScript',
+            'snippets': '',
+        }
+        res = self.client.post(SCRIPTS_URL, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
