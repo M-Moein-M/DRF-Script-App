@@ -193,3 +193,13 @@ class TestAuthRestrictedRequest(TestCase):
         res = self.client.post(SCRIPTS_URL, payload)
 
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_patching_script_not_authenticated_user(self):
+        script = create_sample_script(self.user)
+        payload = {
+            'name': 'PatchedName'
+        }
+
+        res = self.client.patch(get_script_detail_url(script.id), payload)
+
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
