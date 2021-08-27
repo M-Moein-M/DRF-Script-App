@@ -216,3 +216,10 @@ class TestAuthRestrictedRequest(TestCase):
         res = self.client.patch(get_script_detail_url(script.id), payload)
 
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_deleting_script_not_authenticated_user(self):
+        script = create_sample_script(self.user)
+
+        res = self.client.delete(get_script_detail_url(script.id))
+
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
