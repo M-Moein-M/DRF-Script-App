@@ -1,7 +1,10 @@
-from scripts import views
-from django.urls import path
+from rest_framework.routers import DefaultRouter
+from scripts.views import ScriptViewSet
+from django.urls import path, include
+
+router = DefaultRouter()
+router.register(r'scripts', ScriptViewSet, basename='scripts')
 
 urlpatterns = [
-    path('scripts/', views.ScriptList.as_view()),
-    path('scripts/<int:pk>', views.ScriptDetail.as_view()),
+    path('', include(router.urls)),
 ]
