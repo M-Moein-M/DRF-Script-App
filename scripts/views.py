@@ -1,5 +1,4 @@
-from rest_framework import generics
-from rest_framework import mixins
+from rest_framework import viewsets
 from scripts.serializers import ScriptSerializer, ScriptDetailSerializer
 from snippets.models import Script
 
@@ -7,35 +6,20 @@ from rest_framework import permissions
 from snippets.permissions import IsOwnerOrReadOnly
 
 
-class ScriptList(generics.ListCreateAPIView):
-    """Listing and creating script objects"""
-
-    queryset = Script.objects.all().order_by('id')
-    serializer_class = ScriptSerializer
-    pagination_class = None
-
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
-
-    def perform_create(self, serializer, *args, **kwargs):
-        serializer.save(owner=self.request.user)
-
-
-class ScriptDetail(mixins.UpdateModelMixin,
-                   generics.RetrieveDestroyAPIView,
-                   generics.GenericAPIView):
-    """Handling Script details view(method PUT not allowed)"""
-
+class ScriptViewSet(viewsets.ModelViewSet):
     queryset = Script.objects.all()
-    serializer_class = ScriptSerializer
-
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,
                           IsOwnerOrReadOnly)
+    pagination_class = None
 
     def get_serializer_class(self):
-        if self.request.method == 'GET':
+        if self.detail and self.request.method == 'GET':
             return ScriptDetailSerializer
         else:
             return ScriptSerializer
 
     def patch(self, request, *args, **kwargs):
         return self.partial_update(request, *args, **kwargs)
+
+    def perform_create(self, serializer, *args, **kwargs):
+        serializer.save(owner=self.request.user)
