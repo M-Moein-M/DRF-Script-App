@@ -2,14 +2,17 @@ from rest_framework.test import APIClient
 from rest_framework import status
 from django.test import TestCase
 from django.contrib.auth.models import User
+from django.urls import reverse
 from snippets.models import Script, Snippet
 from scripts.serializers import ScriptSerializer, ScriptDetailSerializer
 
-SCRIPTS_URL = '/scripts/'
+
+SCRIPTS_URL = reverse('script-list')
 
 
 def get_script_detail_url(pk):
-    return f'{SCRIPTS_URL}{pk}'
+    """Return script detail url"""
+    return reverse('script-detail', args=[pk])
 
 
 def create_sample_snippet(owner, code, title='SnippetTitle', n=1):
